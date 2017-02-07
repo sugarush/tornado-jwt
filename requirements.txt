@@ -7,4 +7,4 @@ pyparsing==2.1.10
 singledispatch==3.4.0.3
 six==1.10.0
 tornado==4.4.2
--e git+https://github.com/sugarush/tornado-json.git@93adcf9e29e3f99c44d93d71292df63ceb5b7df7#egg=tornado_json
+-e git+https://github.com/sugarush/tornado-json.git@d881e94129056e9e27d188d0d189f52104f139b6#egg=tornado_json
