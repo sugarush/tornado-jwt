@@ -71,7 +71,7 @@ class Authenticator(JSONHandler):
             self.send_error(401, reason=error.message)
 
 
-class Protected(JSONHandler):
+class Authenticated(JSONHandler):
 
     options = {
         'verify_signature': True,
@@ -82,7 +82,7 @@ class Protected(JSONHandler):
     }
 
     def prepare(self):
-        super(Protected, self).prepare()
+        super(Authenticated, self).prepare()
         auth = (self.request.headers.get('Authorization') or '').split()
         if auth:
             if auth[0].lower() == 'bearer':

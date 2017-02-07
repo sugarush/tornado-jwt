@@ -1,2 +1,2 @@
-from auth import Authenticator, Protected
+from auth import Authenticator, Authenticated
 from mongo import MongoDBAuthenticator
