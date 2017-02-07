@@ -11,6 +11,7 @@ setup(
     packages=['tornado_jwt'],
     description='An asynchronous JWT authentication module for Tornado.',
     install_requires=[
+        'pyjwt',
         'tornado',
         'tornado-json==0.0.1'
     ],
