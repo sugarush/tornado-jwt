@@ -4,7 +4,7 @@ from tornado.httputil import HTTPHeaders
 
 from copy import deepcopy
 
-from tornado_jwt import MongoDBAuthenticator, Protected
+from tornado_jwt import MongoDBAuthenticator, Authenticated
 
 
 class CollectionMock(object):
@@ -30,7 +30,7 @@ class MongoDBMock(object):
         self.users = CollectionMock()
 
 
-class ProtectedEndpoint(Protected):
+class AuthenticatedEndpoint(Authenticated):
 
     def get(self):
         self.write(json_encode({
@@ -51,7 +51,7 @@ class TestAuthenticator(testing.AsyncHTTPTestCase):
 
         return web.Application([
             (r'/auth', MongoDBAuthenticator),
-            (r'/v1/protected', ProtectedEndpoint)
+            (r'/v1/protected', AuthenticatedEndpoint)
         ], **settings)
 
     def test_authenticator_create_user(self):
