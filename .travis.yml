@@ -1,0 +1,31 @@
+language: python
+
+python:
+  - 3.6
+
+install:
+  - git clone https://github.com/satan-extra/python.git
+  - source python/python.sh
+  - pip install -r .requirements
+  - source .venv-activate
+
+script:
+  - venv-tornado-test
+
+after_success:
+  - codecov --token "ca6c0628-fb76-46a2-a139-5b0ab0361411" > /dev/null
+
+notifications:
+
+  email: false
+
+  slack:
+
+    rooms:
+      - sugarush:ZmgII1nbdMZf6FEhq7PgiuAG#travis-ci
+
+    template:
+      - "%{repository_name}@%{branch} commit <%{compare_url}|%{commit}> build <%{build_url}|%{result}>"
+      - "%{author}: %{commit_message}"
+
+    on_pull_requests: false
