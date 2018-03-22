@@ -23,7 +23,10 @@ class Authenticator(JSONHandler):
         pass
 
     def encrypt(self, password):
-        return hashlib.sha512(password).hexdigest()
+        return hashlib.sha512(password.encode('utf-8')).hexdigest()
+
+    def payload(self, data):
+        return jwt.encode(data, self.secret, algorithm='HS256')
 
     @gen.coroutine
     def post(self):
@@ -36,12 +39,12 @@ class Authenticator(JSONHandler):
                 else:
                     self.send_json(200, {
                         'success': 'authenticated',
-                        'token': token,
+                        'token': token.decode('utf-8'),
                     })
             else:
                 self.send_error(401, reason='invalid authorization request')
-        except Exception, error:
-            self.send_error(401, reason=error.message)
+        except Exception as error:
+            self.send_error(401, reason=str(error))
 
     @gen.coroutine
     def put(self):
@@ -58,7 +61,7 @@ class Authenticator(JSONHandler):
                         if token:
                             self.send_json(201, {
                                 'success': 'created',
-                                'token': token
+                                'token': token.decode('utf-8')
                             })
                         else:
                             self.send_error(401,
@@ -67,8 +70,8 @@ class Authenticator(JSONHandler):
                         self.send_error(401, reason='failed to create user')
             else:
                 self.send_error(401, reason='invalid authorization request')
-        except Exception, error:
-            self.send_error(401, reason=error.message)
+        except Exception as error:
+            self.send_error(401, reason=str(error))
 
 
 class Authenticated(JSONHandler):
@@ -91,7 +94,7 @@ class Authenticated(JSONHandler):
                     secret = self.settings['secret']
                     self.current_user = jwt.decode(token, secret,
                         options=self.options, algorithms=['HS256'])
-                except Exception, error:
+                except Exception as error:
                     self.send_error(401, reason='failed to decode token')
             else:
                 self.send_error(401, reason='invalid authorization request')

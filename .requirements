@@ -1,0 +1,16 @@
+appdirs==1.4.0
+backports-abc==0.5
+certifi==2018.1.18
+chardet==3.0.4
+codecov==2.0.15
+coverage==4.5.1
+idna==2.6
+packaging==16.8
+PyJWT==1.4.2
+pyparsing==2.1.10
+requests==2.18.4
+singledispatch==3.4.0.3
+six==1.10.0
+tornado==4.5.3
+-e git+https://github.com/sugarush/tornado-json.git@941d78a6bda7df92f84a534bafac48f759be695b#egg=tornado_json
+urllib3==1.22

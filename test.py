@@ -1,3 +1,5 @@
+from unittest import skip
+
 from tornado import testing, web, gen
 from tornado.escape import json_encode, json_decode
 from tornado.httputil import HTTPHeaders
@@ -5,6 +7,7 @@ from tornado.httputil import HTTPHeaders
 from copy import deepcopy
 
 from tornado_jwt import MongoDBAuthenticator, Authenticated
+from tornado_json import JSONHandler
 
 
 class CollectionMock(object):
@@ -15,7 +18,7 @@ class CollectionMock(object):
     @gen.coroutine
     def find_one(self, query, projection={ }):
         for item in self.data:
-            if all(map(lambda (k, v): item.get(k) == v, query.items())):
+            if all(map(lambda kv: item.get(kv[0]) == kv[1], query.items())):
                 raise gen.Return(deepcopy(item))
 
     @gen.coroutine
@@ -23,6 +26,7 @@ class CollectionMock(object):
         item['_id'] = len(self.data)
         self.data.append(item)
         raise gen.Return(deepcopy(item))
+
 
 class MongoDBMock(object):
 
@@ -38,7 +42,7 @@ class AuthenticatedEndpoint(Authenticated):
         }))
 
 
-class TestAuthenticator(testing.AsyncHTTPTestCase):
+class TestMongoDBAuthenticator(testing.AsyncHTTPTestCase):
 
     def get_app(self):
         self.body = { "username": "user", "password": "password" }
@@ -51,81 +55,92 @@ class TestAuthenticator(testing.AsyncHTTPTestCase):
 
         return web.Application([
             (r'/auth', MongoDBAuthenticator),
-            (r'/v1/protected', AuthenticatedEndpoint)
+            (r'/v1/protected', AuthenticatedEndpoint),
         ], **settings)
 
     def test_authenticator_create_user(self):
         # create user
-        response = self.fetch('/auth', method='PUT', body=json_encode(self.body))
-        self.assertIn('success', response.body)
-        self.assertIn('token', response.body)
+        response = self.fetch('/auth', method='PUT',
+            body=json_encode(self.body))
+        self.assertIn('success', response.body.decode('utf-8'))
+        self.assertIn('token', response.body.decode('utf-8'))
 
         # try to create dupilcate user
-        response = self.fetch('/auth', method='PUT', body=json_encode(self.body))
-        self.assertIn('error', response.body)
+        response = self.fetch('/auth', method='PUT',
+            body=json_encode(self.body))
+        self.assertIn('error', response.body.decode('utf-8'))
 
         # try to create user without username
         _body = deepcopy(self.body)
         del(_body['username'])
-        response = self.fetch('/auth', method='PUT', body=json_encode(_body))
-        self.assertIn('error', response.body)
+        response = self.fetch('/auth', method='PUT',
+            body=json_encode(_body))
+        self.assertIn('error', response.body.decode('utf-8'))
 
         # try to create user without password
         _body = deepcopy(self.body)
         del(_body['password'])
-        response = self.fetch('/auth', method='PUT', body=json_encode(_body))
-        self.assertIn('error', response.body)
+        response = self.fetch('/auth', method='PUT',
+            body=json_encode(_body))
+        self.assertIn('error', response.body.decode('utf-8'))
 
         # try to create user without username or password
         _body = deepcopy(self.body)
         del(_body['username'])
         del(_body['password'])
-        response = self.fetch('/auth', method='PUT', body=json_encode(_body))
-        self.assertIn('error', response.body)
+        response = self.fetch('/auth', method='PUT',
+            body=json_encode(_body))
+        self.assertIn('error', response.body.decode('utf-8'))
 
     def test_authenticator_login_user(self):
         # create user
-        response = self.fetch('/auth', method='PUT', body=json_encode(self.body))
-        self.assertIn('success', response.body)
-        self.assertIn('token', response.body)
+        response = self.fetch('/auth', method='PUT',
+            body=json_encode(self.body))
+        self.assertIn('success', response.body.decode('utf-8'))
+        self.assertIn('token', response.body.decode('utf-8'))
 
         # login as user
-        response = self.fetch('/auth', method='POST', body=json_encode(self.body))
-        self.assertIn('success', response.body)
-        self.assertIn('token', response.body)
+        response = self.fetch('/auth', method='POST',
+            body=json_encode(self.body))
+        self.assertIn('success', response.body.decode('utf-8'))
+        self.assertIn('token', response.body.decode('utf-8'))
 
         # try to login witout username
         _body = deepcopy(self.body)
         del(_body['username'])
-        response = self.fetch('/auth', method='POST', body=json_encode(_body))
-        self.assertIn('error', response.body)
+        response = self.fetch('/auth', method='POST',
+            body=json_encode(_body))
+        self.assertIn('error', response.body.decode('utf-8'))
 
         # try to login witout password
         _body = deepcopy(self.body)
         del(_body['password'])
-        response = self.fetch('/auth', method='POST', body=json_encode(_body))
-        self.assertIn('error', response.body)
+        response = self.fetch('/auth', method='POST',
+            body=json_encode(_body))
+        self.assertIn('error', response.body.decode('utf-8'))
 
         # try to login witout password
         _body = deepcopy(self.body)
         del(_body['username'])
         del(_body['password'])
-        response = self.fetch('/auth', method='POST', body=json_encode(_body))
-        self.assertIn('error', response.body)
+        response = self.fetch('/auth', method='POST',
+            body=json_encode(_body))
+        self.assertIn('error', response.body.decode('utf-8'))
 
     def test_authenticated_request(self):
         # create user
-        response = self.fetch('/auth', method='PUT', body=json_encode(self.body))
-        self.assertIn('success', response.body)
-        self.assertIn('token', response.body)
-        token = json_decode(response.body)['token']
+        response = self.fetch('/auth', method='PUT',
+            body=json_encode(self.body))
+        self.assertIn('success', response.body.decode('utf-8'))
+        self.assertIn('token', response.body.decode('utf-8'))
+        token = json_decode(response.body.decode('utf-8'))['token']
 
         # use token for authenticated request
         response = self.fetch('/v1/protected', method='GET', headers=HTTPHeaders({
             'Authorization': 'Bearer %s' % token
         }))
-        self.assertIn('success', response.body)
+        self.assertIn('success', response.body.decode('utf-8'))
 
         # don't use token for unauthorized request
         response = self.fetch('/v1/protected', method='GET')
-        self.assertIn('error', response.body)
+        self.assertIn('error', response.body.decode('utf-8'))

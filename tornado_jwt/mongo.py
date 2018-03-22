@@ -2,7 +2,7 @@ import jwt
 
 from tornado import gen
 
-from auth import Authenticator
+from . auth import Authenticator
 
 
 class MongoDBAuthenticator(Authenticator):

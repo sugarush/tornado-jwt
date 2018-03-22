@@ -16,6 +16,6 @@ setup(
         'tornado-json==0.0.1'
     ],
     dependency_links=[
-        'git+https://github.com/sugarush/tornado-json.git@963b3b3f47c395042c8a59af5956b02321a1374f#egg=tornado-json-0.0.1'
+        'git+https://github.com/sugarush/tornado-json.git@941d78a6bda7df92f84a534bafac48f759be695b#egg=tornado-json-0.0.1'
     ]
 )

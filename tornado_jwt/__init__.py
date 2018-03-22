@@ -1,2 +1,2 @@
-from auth import Authenticator, Authenticated
-from mongo import MongoDBAuthenticator
+from . auth import Authenticator, Authenticated
+from . mongo import MongoDBAuthenticator
