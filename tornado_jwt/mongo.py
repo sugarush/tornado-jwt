@@ -30,7 +30,7 @@ class MongoDBAuthenticator(Authenticator):
         })
         if payload:
             payload['_id'] = str(payload['_id'])
-            raise gen.Return(jwt.encode(payload, secret, algorithm='HS256'))
+            raise gen.Return(self.token(payload))
 
     @gen.coroutine
     def create(self, username, password):

@@ -25,8 +25,9 @@ class Authenticator(JSONHandler):
     def encrypt(self, password):
         return hashlib.sha512(password.encode('utf-8')).hexdigest()
 
-    def payload(self, data):
-        return jwt.encode(data, self.secret, algorithm='HS256')
+    def token(self, data):
+        return jwt.encode(data, self.settings['secret'],
+            algorithm='HS256')
 
     @gen.coroutine
     def post(self):
