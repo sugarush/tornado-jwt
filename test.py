@@ -6,7 +6,7 @@ from tornado.httputil import HTTPHeaders
 
 from copy import deepcopy
 
-from tornado_jwt import MongoDBAuthenticator, Authenticated
+from tornado_jwt import MongoDBAuthenticator, MemoryAuthenticator, MemoryDB, Authenticated
 from tornado_json import JSONHandler
 
 
@@ -42,21 +42,7 @@ class AuthenticatedEndpoint(Authenticated):
         }))
 
 
-class TestMongoDBAuthenticator(testing.AsyncHTTPTestCase):
-
-    def get_app(self):
-        self.body = { "username": "user", "password": "password" }
-        self.db = MongoDBMock()
-
-        settings = {
-            'secret': 'secret',
-            'api_db': self.db,
-        }
-
-        return web.Application([
-            (r'/auth', MongoDBAuthenticator),
-            (r'/v1/protected', AuthenticatedEndpoint),
-        ], **settings)
+class Tests:
 
     def test_authenticator_create_user(self):
         # create user
@@ -144,3 +130,36 @@ class TestMongoDBAuthenticator(testing.AsyncHTTPTestCase):
         # don't use token for unauthorized request
         response = self.fetch('/v1/protected', method='GET')
         self.assertIn('error', response.body.decode('utf-8'))
+
+
+class TestMongoDBAuthenticator(testing.AsyncHTTPTestCase, Tests):
+
+    def get_app(self):
+        self.body = { "username": "user", "password": "password" }
+        self.db = MongoDBMock()
+
+        settings = {
+            'secret': 'secret',
+            'database': self.db,
+        }
+
+        return web.Application([
+            (r'/auth', MongoDBAuthenticator),
+            (r'/v1/protected', AuthenticatedEndpoint),
+        ], **settings)
+
+
+class TestMemoryAuthenitcator(testing.AsyncHTTPTestCase, Tests):
+
+    def get_app(self):
+        self.body = { "username": "user", "password": "password" }
+
+        settings = {
+            'secret': 'secret',
+            'database': MemoryDB()
+        }
+
+        return web.Application([
+            (r'/auth', MemoryAuthenticator),
+            (r'/v1/protected', AuthenticatedEndpoint),
+        ], **settings)
