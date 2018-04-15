@@ -139,12 +139,11 @@ class TestMongoDBAuthenticator(testing.AsyncHTTPTestCase, Tests):
         self.db = MongoDBMock()
 
         settings = {
-            'secret': 'secret',
-            'database': self.db,
+            'secret': 'secret'
         }
 
         return web.Application([
-            (r'/auth', MongoDBAuthenticator),
+            (r'/auth', MongoDBAuthenticator, { 'database': self.db }),
             (r'/v1/protected', AuthenticatedEndpoint),
         ], **settings)
 
@@ -153,13 +152,13 @@ class TestMemoryAuthenitcator(testing.AsyncHTTPTestCase, Tests):
 
     def get_app(self):
         self.body = { "username": "user", "password": "password" }
+        self.db = MemoryDB()
 
         settings = {
-            'secret': 'secret',
-            'database': MemoryDB()
+            'secret': 'secret'
         }
 
         return web.Application([
-            (r'/auth', MemoryAuthenticator),
+            (r'/auth', MemoryAuthenticator, { 'database': self.db }),
             (r'/v1/protected', AuthenticatedEndpoint),
         ], **settings)

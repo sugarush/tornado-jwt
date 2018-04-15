@@ -19,9 +19,9 @@ class MemoryDB(object):
 
 class MemoryAuthenticator(Authenticator):
 
-    def initialize(self, *args, **kargs):
-        super(Authenticator, self).initialize(*args, **kargs)
-        self.database = self.settings['database']
+    def initialize(self, **kargs):
+        super(Authenticator, self).initialize(**kargs)
+        self.database = kargs.get('database')
 
     def validate(self, username, password=None):
         pass
