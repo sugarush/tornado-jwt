@@ -39,7 +39,7 @@ class Authenticator(JSONHandler):
                     self.send_error(401, reason='invalid username or password')
                 else:
                     self.send_json(200, {
-                        'success': 'authenticated',
+                        'message': 'authenticated',
                         'token': token.decode('utf-8'),
                     })
             else:
@@ -61,7 +61,7 @@ class Authenticator(JSONHandler):
                         token = yield self.login(user['username'], user['password'])
                         if token:
                             self.send_json(201, {
-                                'success': 'created',
+                                'message': 'created',
                                 'token': token.decode('utf-8')
                             })
                         else:
