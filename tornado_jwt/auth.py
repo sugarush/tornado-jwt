@@ -22,6 +22,9 @@ class Authenticator(JSONHandler):
     def create(self, username, password):
         pass
 
+    def validate(self, username, password):
+        return True
+
     def encrypt(self, password):
         return hashlib.sha512(password.encode('utf-8')).hexdigest()
 
@@ -32,9 +35,14 @@ class Authenticator(JSONHandler):
     @gen.coroutine
     def post(self):
         try:
-            user = self.decode(self.request.body)
-            if user.get('username') and user.get('password'):
-                token = yield self.login(user['username'], user['password'])
+            username = self.body.get('username')
+            password = self.body.get('password')
+            if not self.validate(username, password):
+                self.send_error(400,
+                    reason='unacceptable username or password'
+                )
+            elif username and password:
+                token = yield self.login(username, password)
                 if not token:
                     self.send_error(401, reason='invalid username or password')
                 else:
@@ -50,15 +58,20 @@ class Authenticator(JSONHandler):
     @gen.coroutine
     def put(self):
         try:
-            user = self.decode(self.request.body)
-            if user.get('username') and user.get('password'):
-                exists = yield self.find(user['username'])
+            username = self.body.get('username')
+            password = self.body.get('password')
+            if not self.validate(username, password):
+                self.send_error(400,
+                    reason='unacceptable username or password'
+                )
+            elif username and password:
+                exists = yield self.find(username)
                 if exists:
                     self.send_error(401, reason='username already exists')
                 else:
-                    created = yield self.create(user['username'], user['password'])
+                    created = yield self.create(username, password)
                     if created:
-                        token = yield self.login(user['username'], user['password'])
+                        token = yield self.login(username, password)
                         if token:
                             self.send_json(201, {
                                 'message': 'created',

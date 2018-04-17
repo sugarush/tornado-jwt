@@ -48,27 +48,27 @@ class Tests:
         # create user
         response = self.fetch('/auth', method='PUT',
             body=json_encode(self.body))
-        self.assertIn('success', response.body.decode('utf-8'))
+        self.assertEqual(201, response.code)
         self.assertIn('token', response.body.decode('utf-8'))
 
         # try to create dupilcate user
         response = self.fetch('/auth', method='PUT',
             body=json_encode(self.body))
-        self.assertIn('error', response.body.decode('utf-8'))
+        self.assertEqual(401, response.code)
 
         # try to create user without username
         _body = deepcopy(self.body)
         del(_body['username'])
         response = self.fetch('/auth', method='PUT',
             body=json_encode(_body))
-        self.assertIn('error', response.body.decode('utf-8'))
+        self.assertEqual(401, response.code)
 
         # try to create user without password
         _body = deepcopy(self.body)
         del(_body['password'])
         response = self.fetch('/auth', method='PUT',
             body=json_encode(_body))
-        self.assertIn('error', response.body.decode('utf-8'))
+        self.assertEqual(401, response.code)
 
         # try to create user without username or password
         _body = deepcopy(self.body)
@@ -76,19 +76,19 @@ class Tests:
         del(_body['password'])
         response = self.fetch('/auth', method='PUT',
             body=json_encode(_body))
-        self.assertIn('error', response.body.decode('utf-8'))
+        self.assertEqual(401, response.code)
 
     def test_authenticator_login_user(self):
         # create user
         response = self.fetch('/auth', method='PUT',
             body=json_encode(self.body))
-        self.assertIn('success', response.body.decode('utf-8'))
+        self.assertEqual(201, response.code)
         self.assertIn('token', response.body.decode('utf-8'))
 
         # login as user
         response = self.fetch('/auth', method='POST',
             body=json_encode(self.body))
-        self.assertIn('success', response.body.decode('utf-8'))
+        self.assertEqual(200, response.code)
         self.assertIn('token', response.body.decode('utf-8'))
 
         # try to login witout username
@@ -96,14 +96,14 @@ class Tests:
         del(_body['username'])
         response = self.fetch('/auth', method='POST',
             body=json_encode(_body))
-        self.assertIn('error', response.body.decode('utf-8'))
+        self.assertEqual(401, response.code)
 
         # try to login witout password
         _body = deepcopy(self.body)
         del(_body['password'])
         response = self.fetch('/auth', method='POST',
             body=json_encode(_body))
-        self.assertIn('error', response.body.decode('utf-8'))
+        self.assertEqual(401, response.code)
 
         # try to login witout password
         _body = deepcopy(self.body)
@@ -111,13 +111,13 @@ class Tests:
         del(_body['password'])
         response = self.fetch('/auth', method='POST',
             body=json_encode(_body))
-        self.assertIn('error', response.body.decode('utf-8'))
+        self.assertEqual(401, response.code)
 
     def test_authenticated_request(self):
         # create user
         response = self.fetch('/auth', method='PUT',
             body=json_encode(self.body))
-        self.assertIn('success', response.body.decode('utf-8'))
+        self.assertEqual(201, response.code)
         self.assertIn('token', response.body.decode('utf-8'))
         token = json_decode(response.body.decode('utf-8'))['token']
 
@@ -125,11 +125,11 @@ class Tests:
         response = self.fetch('/v1/protected', method='GET', headers=HTTPHeaders({
             'Authorization': 'Bearer %s' % token
         }))
-        self.assertIn('success', response.body.decode('utf-8'))
+        self.assertEqual(200, response.code)
 
         # don't use token for unauthorized request
         response = self.fetch('/v1/protected', method='GET')
-        self.assertIn('error', response.body.decode('utf-8'))
+        self.assertEqual(401, response.code)
 
 
 class TestMongoDBAuthenticator(testing.AsyncHTTPTestCase, Tests):

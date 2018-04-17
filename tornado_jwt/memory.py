@@ -23,18 +23,13 @@ class MemoryAuthenticator(Authenticator):
         super(Authenticator, self).initialize(**kargs)
         self.database = kargs.get('database')
 
-    def validate(self, username, password=None):
-        pass
-
     @gen.coroutine
     def find(self, username):
-        self.validate(username)
         encrypted_password = self.database.find(username)
         raise gen.Return(encrypted_password)
 
     @gen.coroutine
     def login(self, username, password):
-        self.validate(username, password)
         payload = None
         encrypted_password = self.database.find(username)
         if encrypted_password and encrypted_password == self.encrypt(password):
@@ -43,6 +38,5 @@ class MemoryAuthenticator(Authenticator):
 
     @gen.coroutine
     def create(self, username, password):
-        self.validate(username, password)
         self.database.create(username, self.encrypt(password))
         raise gen.Return(True)
