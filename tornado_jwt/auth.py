@@ -1,4 +1,4 @@
-import jwt, hashlib
+import jwt, hashlib, sys
 
 from abc import ABCMeta, abstractmethod
 
@@ -45,7 +45,7 @@ class Authenticator(JSONHandler):
             else:
                 self.send_error(401, reason='invalid authorization request')
         except Exception as error:
-            self.send_error(401, reason=str(error))
+            self.send_error(401, reason=str(error), exc_info=sys.exc_info())
 
     @gen.coroutine
     def put(self):
@@ -72,7 +72,7 @@ class Authenticator(JSONHandler):
             else:
                 self.send_error(401, reason='invalid authorization request')
         except Exception as error:
-            self.send_error(401, reason=str(error))
+            self.send_error(401, reason=str(error), exc_info=sys.exc_info())
 
 
 class Authenticated(JSONHandler):
