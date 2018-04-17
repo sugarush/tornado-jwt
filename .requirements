@@ -12,5 +12,5 @@ requests==2.18.4
 singledispatch==3.4.0.3
 six==1.10.0
 tornado==5.0.1
--e git+https://github.com/sugarush/tornado-json.git@06044942db03150685ee0d8fe2e09692c27a7a04#egg=tornado_json
+-e git+https://github.com/sugarush/tornado-json.git@1fde8c4b00769710822358f4598550563134d2ab#egg=tornado_json
 urllib3==1.22
