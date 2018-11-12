@@ -19,7 +19,6 @@ class MongoDBAuthenticator(Authenticator):
 
     @gen.coroutine
     def login(self, username, password):
-        secret = self.settings['secret']
         users = self.database.users
         payload = yield users.find_one({
             'username': username,

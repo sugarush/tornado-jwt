@@ -39,19 +39,19 @@ class Authenticator(JSONHandler):
             password = self.body.get('password')
             if not self.validate(username, password):
                 self.send_error(400,
-                    reason='unacceptable username or password'
+                    reason='Unacceptable Username or Password'
                 )
             elif username and password:
                 token = yield self.login(username, password)
                 if not token:
-                    self.send_error(401, reason='invalid username or password')
+                    self.send_error(401, reason='Invalid Username or Password')
                 else:
                     self.send_json(200, {
                         'message': 'authenticated',
                         'token': token.decode('utf-8'),
                     })
             else:
-                self.send_error(401, reason='invalid authorization request')
+                self.send_error(401, reason='Invalid Authorization Request')
         except Exception as error:
             self.send_error(401, reason=str(error), exc_info=sys.exc_info())
 
@@ -62,12 +62,12 @@ class Authenticator(JSONHandler):
             password = self.body.get('password')
             if not self.validate(username, password):
                 self.send_error(400,
-                    reason='unacceptable username or password'
+                    reason='Unacceptable Username or Password'
                 )
             elif username and password:
                 exists = yield self.find(username)
                 if exists:
-                    self.send_error(401, reason='username already exists')
+                    self.send_error(401, reason='Username Already Exists')
                 else:
                     created = yield self.create(username, password)
                     if created:
@@ -79,11 +79,11 @@ class Authenticator(JSONHandler):
                             })
                         else:
                             self.send_error(401,
-                                reason='user created, authentication failed')
+                                reason='User Created, Authentication Failed')
                     else:
-                        self.send_error(401, reason='failed to create user')
+                        self.send_error(401, reason='Failed to Create User')
             else:
-                self.send_error(401, reason='invalid authorization request')
+                self.send_error(401, reason='Invalid Authorization Request')
         except Exception as error:
             self.send_error(401, reason=str(error), exc_info=sys.exc_info())
 
@@ -109,8 +109,8 @@ class Authenticated(JSONHandler):
                     self.current_user = jwt.decode(token, secret,
                         options=self.options, algorithms=['HS256'])
                 except Exception as error:
-                    self.send_error(401, reason='failed to decode token')
+                    self.send_error(401, reason='Failed to Decode Token')
             else:
-                self.send_error(401, reason='invalid authorization request')
+                self.send_error(401, reason='Invalid Authorization Request')
         else:
-            self.send_error(401, reason='authorization header missing')
+            self.send_error(401, reason='Authorization Header Missing')
